@@ -1,0 +1,35 @@
+# Sauron-1 auto-boot capture config.
+#
+# The installer copies this to the SD card's BOOT partition as
+# 'startracker.conf'. That partition is FAT and mounts on any laptop, so in the
+# field (no screen) you can change capture settings by popping the SD into a
+# laptop, editing this file, and rebooting the Pi.
+#
+# Each line is a shell variable assignment. Reboot the Pi to apply.
+
+# How long to run on each power-on, in seconds.
+# 999999 = keep capturing until you cut power or the disk fills.
+DURATION=999999
+
+# fixed  = hold one exposure/gain the whole time (use after you know the setting)
+# bracket = sweep the BRACKET list (use to FIND the setting on night 1)
+MODE=fixed
+
+# --- fixed mode ---
+EXPOSURE_US=200000        # shutter speed in microseconds (200000 = 0.2 s)
+GAIN=4.0                  # analogue gain
+
+# --- bracket mode (only used when MODE=bracket) ---
+BRACKET="20000:1,50000:2,100000:4,200000:8,500000:12"
+FRAMES_PER_SETTING=5
+
+# Save a JPEG quicklook this often (seconds); 0 disables previews.
+PREVIEW_EVERY=5
+
+# Stop capturing once free disk falls below this (GB).
+MIN_FREE_GB=1.0
+
+# Free text written into every session.json -- RECORD YOUR FOCUS STATE here,
+# since you can't see a live preview in the field.
+FOCUS_NOTE="defocused ~2px"
+NOTE="joshua tree auto-boot"

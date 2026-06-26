@@ -129,6 +129,42 @@ Label each run with `--focus-note` / `--note`; it lands in `session.json`.
 
 ---
 
+## Headless auto-start on power (no screen)
+
+Install the boot service once, at home on network:
+```bash
+cd ~/sauron-pi-capture
+./field/install-service.sh
+```
+After that the Pi runs `capture.py` automatically ~20–40 s after it gets power
+(systemd boot time — you cannot really beat that). No login, no screen needed.
+Each power-on writes a new `data/session_YYYYmmdd_HHMMSS/`, so power-cycling
+never overwrites data. Cutting power sends SIGTERM; the capture flushes its log
+and exits cleanly (worst case you lose the single in-flight DNG).
+
+**Change settings without a screen.** Capture settings live in
+`startracker.conf` on the SD card's **boot partition**, which mounts on any
+laptop (Windows/Mac). Pop the SD in a laptop, edit exposure/gain/mode, eject,
+reboot the Pi. See `field/startracker.conf.example`.
+
+**Two things that will bite you headless:**
+
+1. **The clock.** The Pi 5 has an RTC but only keeps time across power-off if a
+   **coin-cell battery is fitted to the RTC/BAT connector (J5)**. With no
+   battery and no network (Joshua Tree), every boot the clock reloads the
+   *fake-hwclock* time from last shutdown — so the absolute UTC stamp will be
+   wrong. The per-frame `SensorTimestamp` (monotonic) is still perfectly good
+   for *relative* timing within a session. Fixes, best to worst:
+   - Fit the RTC battery and `sudo timedatectl` sync at home before leaving.
+   - Or note the real wall-clock time (phone) at the moment you power the Pi,
+     so you can re-peg `session.json`'s start time in post.
+   - (Future) feed it GPS time.
+
+2. **Focus.** You have no live preview in the field, so **set focus at home**:
+   focus sharp on a distant target, then back off to the marked defocus point
+   (see the defocus section) and record it in `FOCUS_NOTE`. Confirm later from
+   the preview JPEGs / `quicklook.py`.
+
 ## Pre-departure checklist
 
 - [ ] `rpicam-hello --list-cameras` shows `imx296`.

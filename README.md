@@ -79,6 +79,19 @@ Exposure and gain are **clamped to the camera's reported limits** at runtime, so
 you cannot silently ask for an impossible shutter. The actually-applied values
 are what get logged (read back from frame metadata), not what you requested.
 
+## Auto-start on boot (headless, no screen)
+
+For unattended field use, install the systemd service once (at home, on network):
+
+```bash
+./field/install-service.sh
+```
+
+The Pi then starts capturing automatically ~20–40 s after it gets power — no
+login or screen needed. Capture settings live in `startracker.conf` on the SD
+card's boot partition, editable from any laptop. Details, plus the **clock
+(RTC battery)** and **focus** caveats, are in `FIELD_NOTES.md`.
+
 ## Quicklook (is the data any good?)
 
 ```bash

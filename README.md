@@ -80,6 +80,17 @@ Exposure and gain are **clamped to the camera's reported limits** at runtime, so
 you cannot silently ask for an impossible shutter. The actually-applied values
 are what get logged (read back from frame metadata), not what you requested.
 
+## Verify the rig (one command)
+
+```bash
+./selftest.sh                 # 30 s preview (set focus) -> 5 s capture -> PASS/FAIL
+./selftest.sh --no-preview    # headless: skip the preview window
+```
+
+It reuses the same `startracker.conf` the boot service uses, so you test exactly
+what you fly: confirms the IMX296 is detected, captures with the configured
+exposure/gain, then checks frame count and that the logged exposure matches.
+
 ## Auto-start on boot (headless, no screen)
 
 For unattended field use, install the systemd service once (at home, on network):

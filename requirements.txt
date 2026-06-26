@@ -1,0 +1,10 @@
+# capture.py depends on picamera2, which on Raspberry Pi OS must come from apt,
+# NOT pip:
+#     sudo apt install -y python3-picamera2
+#
+# The packages below are ONLY for quicklook.py (offline analysis). Install with:
+#     pip install --break-system-packages -r requirements.txt
+numpy
+rawpy
+pillow
+scipy

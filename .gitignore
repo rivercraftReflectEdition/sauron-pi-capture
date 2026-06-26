@@ -1,0 +1,11 @@
+# Captured data stays on the SD card, not in git
+data/
+*.dng
+*.jpg
+*.png
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/

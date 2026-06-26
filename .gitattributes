@@ -1,0 +1,6 @@
+# This code runs on Raspberry Pi OS (Linux). Force LF so shebangs and shell
+# behaviour are not broken by CRLF when the repo is edited on Windows.
+* text=auto eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf

@@ -94,13 +94,65 @@ later model) the trail.
 
 ---
 
+## Exposure bracket from the photon model
+
+Don't capture at one fixed shutter — bracket it. The exposure range is derived
+from the optical foundation notebook's photon model
+(`../outputs/sauron_optical_foundation/`), not picked by feel. Constants:
+`Φ₀ = 3.6e10 ph/m²/s` (mag-0), throughput 0.85, IMX296 QE 0.6429, read noise
+4.81 e⁻, full well 10636 e⁻, detection SNR 5 over a 9-px window.
+
+Collected rate from a mag-0 star: `R₀ = Φ₀·A·QE·throughput = 4.93e6 e⁻/s`
+(aperture `A = π(f/N/2)² = 250 mm²`). Detection needs `S_lim = 85.7 e⁻`, giving
+a clean limiting-magnitude law:
+
+```
+V_lim(t) = 11.9 + 2.5·log10(t[s])
+```
+
+| exposure | V_lim (model) | trail (px) | regime |
+|---:|---:|---:|---|
+| 5 ms   |  6.2 | 0.003 | below flight; brightest stars only, all unsaturated |
+| **10 ms**  | **6.9** | 0.005 | **≈ on-orbit flight point** (1 px smear @ 0.821°/s) |
+| 20 ms  |  7.6 | 0.011 | flight + margin |
+| 50 ms  |  8.6 | 0.026 | bright stars begin saturating |
+| 100 ms |  9.4 | 0.053 | deep census; gain-sweep anchor |
+| 200 ms | 10.2 | 0.106 | |
+| 500 ms | 11.2 | 0.264 | |
+| 1000 ms| 11.9 | 0.528 | still read-noise-limited at a dark site |
+| (2000 ms)| 12.7 | 1.06 | trailing >1 px; sky-noise onset |
+
+Why a sweep and not a single value:
+- **Flight exposure is locked at ~9.6 ms** by smear (`t = smear·IFOV/ω` at
+  ω = 0.821°/s). On a tripod, Earth rotation is **197× slower**, so you can
+  expose to the ~1.9 s / 1-px trailing limit. The bracket both reproduces the
+  flight point (10 ms → V~6.9, matching the notebook) and exploits the ground
+  freedom to map the curve.
+- **Saturation:** full well 10636 e⁻ → bright guide stars saturate past ~50 ms.
+  Short end = clean PSF/centroid; long end = faint-star census.
+- **Sky background (not in the model):** Joshua Tree sky ≈ 10 e⁻/s/px
+  (21.5 mag/arcsec², 28.46″ pixels) keeps sky shot-noise below read noise out to
+  ~1–2 s. So the `V_lim` line should hold to ~1 s, then bend. **Measuring where
+  it bends gives your true sky-noise floor** — a real result, not just a check.
+
+Default boot config runs the exposure sweep at gain 2:
+```
+BRACKET="5000:2,10000:2,20000:2,50000:2,100000:2,200000:2,500000:2,1000000:2"
+```
+Then separately run a **gain sweep at 100 ms** to find the Pi's noise/headroom
+sweet spot (its gain↔read-noise curve differs from the FLIR EMVA proxy):
+```
+BRACKET="100000:1,100000:2,100000:4,100000:8,100000:16"
+```
+
 ## Suggested capture sequence (≈ a few minutes total)
 
-1. **Find the working point** — bracket sweep, lens capped *off*, focused:
+1. **Find the working point** — exposure sweep (from the photon model above),
+   focused:
    ```
    python3 capture.py --duration 60 \
-     --bracket "20000:1,50000:2,100000:4,200000:8,500000:12,1000000:12" \
-     --frames-per-setting 4 --focus-note "infinity sharp"
+     --bracket "5000:2,10000:2,20000:2,50000:2,100000:2,200000:2,500000:2,1000000:2" \
+     --frames-per-setting 5 --focus-note "infinity sharp"
    ```
    Run `quicklook.py` on a few frames; pick the exp/gain with good star count
    and peak SNR without saturating bright stars.

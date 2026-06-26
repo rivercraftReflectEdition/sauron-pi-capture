@@ -57,9 +57,10 @@ python3 capture.py --list-modes
 python3 capture.py --duration 60 --exposure-us 200000 --gain 4.0 \
     --focus-note "infinity sharp" --operator river
 
-# Exposure/gain sweep — the right first move in the field to find the sweet spot
+# Exposure sweep (steps derived from the f/1.4 photon model; 10 ms = flight point)
+# — the right first move in the field. See FIELD_NOTES.md for the derivation.
 python3 capture.py --duration 90 \
-    --bracket "20000:1,50000:2,100000:4,200000:8,500000:12" \
+    --bracket "5000:2,10000:2,20000:2,50000:2,100000:2,200000:2,500000:2,1000000:2" \
     --frames-per-setting 5
 ```
 

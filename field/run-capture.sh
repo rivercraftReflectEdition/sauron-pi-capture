@@ -17,10 +17,11 @@ PY="${PYTHON:-python3}"
 
 # ---- defaults (overridden by config file) -------------------------------- #
 DURATION=999999            # seconds; huge = run until power off or disk full
-MODE=fixed                 # fixed | bracket
-EXPOSURE_US=200000         # 0.2 s
-GAIN=4.0
-BRACKET="20000:1,50000:2,100000:4,200000:8,500000:12"
+MODE=bracket               # fixed | bracket
+EXPOSURE_US=100000         # 0.1 s
+GAIN=2.0
+# exposure sweep from the f/1.4 photon model (see FIELD_NOTES.md)
+BRACKET="5000:2,10000:2,20000:2,50000:2,100000:2,200000:2,500000:2,1000000:2"
 FRAMES_PER_SETTING=5
 PREVIEW_EVERY=5
 MIN_FREE_GB=1.0

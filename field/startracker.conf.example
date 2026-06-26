@@ -12,15 +12,22 @@
 DURATION=999999
 
 # fixed  = hold one exposure/gain the whole time (use after you know the setting)
-# bracket = sweep the BRACKET list (use to FIND the setting on night 1)
-MODE=fixed
+# bracket = sweep the BRACKET list (use to FIND the setting / map the model)
+# Default is bracket: the exposure steps below are derived from the optical
+# foundation photon model for f/1.4 (see "Exposure bracket from the photon
+# model" in FIELD_NOTES.md). 10 ms is the on-orbit flight point; the rest map
+# limiting magnitude up to the ~1 s ground trailing limit.
+MODE=bracket
 
-# --- fixed mode ---
-EXPOSURE_US=200000        # shutter speed in microseconds (200000 = 0.2 s)
-GAIN=4.0                  # analogue gain
+# --- fixed mode (used only when MODE=fixed, after you pick a winner) ---
+EXPOSURE_US=100000        # shutter speed in microseconds (100000 = 0.1 s)
+GAIN=2.0                  # analogue gain
 
-# --- bracket mode (only used when MODE=bracket) ---
-BRACKET="20000:1,50000:2,100000:4,200000:8,500000:12"
+# --- bracket mode: "exposure_us:gain" pairs, swept repeatedly ---
+# Exposure sweep at fixed gain=2 (clean limiting-mag vs exposure curve):
+BRACKET="5000:2,10000:2,20000:2,50000:2,100000:2,200000:2,500000:2,1000000:2"
+# Alt: GAIN sweep at fixed 100 ms (find the Pi's noise/headroom sweet spot) --
+#   BRACKET="100000:1,100000:2,100000:4,100000:8,100000:16"
 FRAMES_PER_SETTING=5
 
 # Save a JPEG quicklook this often (seconds); 0 disables previews.

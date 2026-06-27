@@ -82,6 +82,33 @@ def free_gb(path):
     return shutil.disk_usage(path).free / 1e9
 
 
+def start_preview_safely(picam2, mode):
+    """Best-effort live preview; never fatal. Returns the backend used or None.
+
+    auto -> QTGL/QT inside a desktop session, else DRM (straight to the console
+    framebuffer). If nothing works (e.g. truly headless), capture continues with
+    no window.
+    """
+    if mode == "none":
+        return None
+    from picamera2 import Preview
+    if mode == "auto":
+        on_desktop = bool(os.environ.get("WAYLAND_DISPLAY") or os.environ.get("DISPLAY"))
+        order = [Preview.QTGL, Preview.QT, Preview.DRM] if on_desktop else [Preview.DRM]
+    else:
+        order = [{"drm": Preview.DRM, "qtgl": Preview.QTGL,
+                  "qt": Preview.QT, "null": Preview.NULL}[mode]]
+    for backend in order:
+        try:
+            picam2.start_preview(backend)
+            print(f"preview: {backend}")
+            return backend
+        except Exception as e:
+            print(f"  preview {backend} unavailable: {e}")
+    print("preview: none (continuing without a window)")
+    return None
+
+
 # --------------------------------------------------------------------------- #
 # Main
 # --------------------------------------------------------------------------- #
@@ -118,6 +145,9 @@ def main():
     # Preview + housekeeping
     ap.add_argument("--preview-every", type=float, default=2.0,
                     help="save a JPEG quicklook this often (s); 0 disables")
+    ap.add_argument("--preview", default="none",
+                    choices=["none", "auto", "drm", "qtgl", "qt", "null"],
+                    help="live preview window (auto: QTGL on desktop, DRM on console)")
     ap.add_argument("--min-free-gb", type=float, default=0.5,
                     help="stop when free disk falls below this")
     ap.add_argument("--no-dng", action="store_true",
@@ -261,6 +291,7 @@ def main():
     signal.signal(signal.SIGINT, handle_sigint)
     signal.signal(signal.SIGTERM, handle_sigint)
 
+    start_preview_safely(picam2, args.preview)
     picam2.start()
 
     def apply_setting(exp, gain):

@@ -33,6 +33,10 @@ FRAMES_PER_SETTING=5
 # Save a JPEG quicklook this often (seconds); 0 disables previews.
 PREVIEW_EVERY=5
 
+# Live preview window when a screen is attached: auto|drm|qtgl|none
+# (auto = DRM straight to the console screen, or QTGL inside a desktop session).
+PREVIEW=auto
+
 # Stop capturing once free disk falls below this (GB).
 MIN_FREE_GB=1.0
 

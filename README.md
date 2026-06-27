@@ -8,27 +8,6 @@ time (shutter speed), gain, sensor timestamp, and a UTC stamp.
 This is the data-collection half of the "Night-sky capture, catalog solve"
 validation step in `../STAR_TRACKER_FRIDAY_REVIEW_PLAN.md`.
 
-## ⚡ Auto mode — capture on power-up, live on the screen
-
-Set it up once on the Pi (at home, on network):
-
-```bash
-cd ~/Documents/sauron-pi-capture
-git pull
-./field/install-autostart.sh     # boots to the screen, shows live camera + captures
-sudo reboot                       # ~20-40s later the LIVE camera appears on screen
-```
-
-After this, **every power-up** auto-logs in on the attached screen, shows the
-live camera, and captures to `data/session_*` — no keyboard. With **no monitor
-(the field)** it just captures. Manage it by SSH-ing in. Change exposure/gain by
-editing `startracker.conf` on the SD card's boot partition (works from any
-laptop). Undo with `sudo raspi-config nonint do_boot_behaviour B4`.
-
-> **Pure headless, no preview?** Use `./field/install-service.sh` instead — a
-> systemd service with auto-restart. **Run only one** of the two installers; both
-> grab the (single-access) camera and would collide.
-
 ## What it produces
 
 ```

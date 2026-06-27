@@ -24,7 +24,6 @@ GAIN=2.0
 BRACKET="5000:2,10000:2,20000:2,50000:2,100000:2,200000:2,500000:2,1000000:2"
 FRAMES_PER_SETTING=5
 PREVIEW_EVERY=5
-PREVIEW=auto               # live window: auto|drm|qtgl|none
 MIN_FREE_GB=1.0
 OUT="$REPO/data"
 FOCUS_NOTE=""
@@ -53,7 +52,7 @@ done
 
 # ---- build args ---------------------------------------------------------- #
 ARGS=(--duration "$DURATION" --out "$OUT" --min-free-gb "$MIN_FREE_GB"
-      --preview-every "$PREVIEW_EVERY" --preview "$PREVIEW")
+      --preview-every "$PREVIEW_EVERY")
 if [ "$MODE" = "bracket" ]; then
   ARGS+=(--bracket "$BRACKET" --frames-per-setting "$FRAMES_PER_SETTING")
 else

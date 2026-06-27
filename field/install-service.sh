@@ -32,10 +32,19 @@ else
 fi
 
 # Write the unit (paths/user baked in).
+# Make boot logs survive a power cycle, so field failures are debuggable with
+# `journalctl -u startracker -b -1` after a reboot.
+sudo mkdir -p /var/log/journal
+sudo systemctl restart systemd-journald || true
+
 sudo tee "$UNIT" >/dev/null <<EOF
 [Unit]
 Description=Sauron-1 star tracker field capture (auto-start on boot)
-After=multi-user.target
+# NOTE: do NOT use After=multi-user.target here -- combined with
+# WantedBy=multi-user.target it forms an ordering cycle and systemd silently
+# drops this service at boot (it still runs manually). local-fs.target just
+# guarantees the filesystems are mounted; the camera wait lives in run-capture.sh.
+After=local-fs.target
 StartLimitIntervalSec=120
 StartLimitBurst=10
 
@@ -53,6 +62,11 @@ EOF
 
 sudo systemctl daemon-reload
 sudo systemctl enable startracker.service
+
+echo
+echo -n "is-enabled: "; systemctl is-enabled startracker.service || true
+echo "Verify there is NO ordering cycle at next boot:"
+echo "  sudo reboot   # then:  journalctl -u startracker -b   (should show capture starting)"
 
 cat <<EOF
 

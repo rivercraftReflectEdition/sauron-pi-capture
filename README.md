@@ -91,6 +91,16 @@ It reuses the same `startracker.conf` the boot service uses, so you test exactly
 what you fly: confirms the IMX296 is detected, captures with the configured
 exposure/gain, then checks frame count and that the logged exposure matches.
 
+## Live preview (check the camera is working)
+
+```bash
+rpicam-hello -t 0          # live preview until Ctrl-C
+rpicam-hello -t 10000      # 10 s then exit
+```
+
+Works over SSH if you have a display attached; or run headlessly and it streams
+to the terminal without a window.
+
 ## Auto-start on boot (headless, no screen)
 
 For unattended field use, install the systemd service once (at home, on network):
@@ -103,6 +113,12 @@ The Pi then starts capturing automatically ~20–40 s after it gets power — no
 login or screen needed. Capture settings live in `startracker.conf` on the SD
 card's boot partition, editable from any laptop. Details, plus the **clock
 (RTC battery)** and **focus** caveats, are in `FIELD_NOTES.md`.
+
+To turn it off:
+
+```bash
+sudo systemctl disable --now startracker.service
+```
 
 ## Quicklook (is the data any good?)
 

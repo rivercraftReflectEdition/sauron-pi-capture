@@ -3,8 +3,8 @@
 exposure_model.py -- where the capture bracket comes from.
 
 Reproduces the f/1.4 exposure vs limiting-magnitude / saturation / trailing
-table using the SAME photon model as the optical foundation notebook
-(outputs/sauron_optical_foundation/). Run it to re-derive the bracket if any
+table using the same photon-model family as the optical theory notebook
+(outputs/Notebooks/SauronTheory.ipynb). Run it to re-derive the bracket if any
 input (focal length, f-number, sensor, slew) changes.
 
     python3 analysis/exposure_model.py
@@ -14,7 +14,7 @@ No dependencies beyond the standard library.
 
 import math
 
-# --- constants, verbatim from Sauron_Optical_Foundation -------------------- #
+# --- constants for the IMX296 field-capture bracket ------------------------ #
 PHI0 = 3.6e10        # photons / m^2 / s for a mag-0 V-like star
 F_MM = 25.0
 N = 1.4

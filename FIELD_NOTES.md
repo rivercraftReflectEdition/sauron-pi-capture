@@ -97,8 +97,8 @@ later model) the trail.
 ## Exposure bracket from the photon model
 
 Don't capture at one fixed shutter — bracket it. The exposure range is derived
-from the optical foundation notebook's photon model
-(`../outputs/sauron_optical_foundation/`), not picked by feel. Constants:
+from the local photon-model scripts and optical notebook
+(`analysis/exposure_model.py`, `../outputs/Notebooks/SauronTheory.ipynb`), not picked by feel. Constants:
 `Φ₀ = 3.6e10 ph/m²/s` (mag-0), throughput 0.85, IMX296 QE 0.6429, read noise
 4.81 e⁻, full well 10636 e⁻, detection SNR 5 over a 9-px window.
 
@@ -126,7 +126,7 @@ Why a sweep and not a single value:
 - **Flight exposure is locked at ~9.6 ms** by smear (`t = smear·IFOV/ω` at
   ω = 0.821°/s). On a tripod, Earth rotation is **197× slower**, so you can
   expose to the ~1.9 s / 1-px trailing limit. The bracket both reproduces the
-  flight point (10 ms → V~6.9, matching the notebook) and exploits the ground
+  flight point (10 ms -> V~6.9, matching this IMX296 bracket model) and exploits the ground
   freedom to map the curve.
 - **Saturation:** full well 10636 e⁻ → bright guide stars saturate past ~50 ms.
   Short end = clean PSF/centroid; long end = faint-star census.

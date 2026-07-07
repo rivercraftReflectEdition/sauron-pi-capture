@@ -15,14 +15,25 @@ No dependencies beyond the standard library.
 import math
 
 # --- constants for the IMX296 field-capture bracket ------------------------ #
-PHI0 = 3.6e10        # photons / m^2 / s for a mag-0 V-like star
+# Reconciled to SauronTheory.ipynb conventions 2026-07-02 (audit 2026-07-01 §1.4:
+# "three photon models in the workspace"). Re-run and re-verify the capture bracket
+# after any notebook constant change. Net effect of this reconciliation: V_lim is
+# ~0.6 mag FAINTER-SIDE PESSIMISTIC vs the old numbers (QE −0.39, windowing −0.31,
+# PHI0 +0.07 mag) — re-check any exposure choices made from the old table.
+PHI0 = 3.843e10      # photons / m^2 / s, V=0 G2V star in 400-800 nm
+                     # (= PHI0_BAND in SauronTheory.ipynb: Bessell 1998 V zero point
+                     #  carried across the band with a 5778 K blackbody; was 3.6e10)
 F_MM = 25.0
 N = 1.4
 THRU = 0.85          # OPTICS_THROUGHPUT
-QE = 0.6429          # IMX296 (FLIR EMVA proxy)
+QE = 0.45            # IMX296 BAND-AVERAGED QE (notebook qe_band, ESTIMATE +/-0.10).
+                     # Was 0.6429 = the EMVA peak at 525 nm, which overstates the
+                     # in-band signal by ~0.39 mag.
 RN = 4.81            # e- read noise
-FULLWELL = 10636     # e-
-NPIX = 9             # CENTROID_WINDOW_PIXELS
+FULLWELL = 10600     # e- (source-of-truth rounding; was 10636)
+SIGMA_PSF = 1.0      # px PSF sigma ON THE IMX296: gate-class ~8 um FWHM blur is
+                     # 2.3 px FWHM on 3.45 um pixels (flight gate quotes px on 2.25 um)
+DET_WINDOWS = (3, 5, 7, 9)   # candidate square detection windows, as in the notebook
 SNRDET = 5.0
 PIX_UM = 3.45
 OMEGA_ORBIT = 0.821  # deg/s serving slew (the on-orbit binding rate)
@@ -40,9 +51,19 @@ def main():
     ifov_rad = (PIX_UM * 1e-3) / F_MM
     ifov_as = ifov_rad * ARCSEC_RAD
 
-    # limiting signal for SNR=5 over NPIX with read noise (quadratic solve)
+    # limiting TOTAL star signal: windowed detection matching SauronTheory.ipynb —
+    # only the contained fraction f(sigma, w) of the star competes against that
+    # window's read noise; per window the SNR=SNRDET condition solves in closed
+    # form for f*S, and we take the best (lowest-S) window. The old fixed-9px
+    # total-flux criterion was the model the 2026-07-01 audit deprecated.
     q = SNRDET ** 2
-    slim = (q + math.sqrt(q ** 2 + 4 * q * NPIX * RN ** 2)) / 2
+
+    def wfrac(w):
+        e = math.erf(w / 2.0 / (SIGMA_PSF * math.sqrt(2.0)))
+        return e * e
+
+    slim, wbest = min(((q + math.sqrt(q ** 2 + 4 * q * w * w * RN ** 2)) / (2 * wfrac(w)), w)
+                      for w in DET_WINDOWS)
 
     # on-orbit smear-limited exposure (1 px streak)
     t_orbit = 1.0 * ifov_rad / math.radians(OMEGA_ORBIT)
@@ -65,7 +86,8 @@ def main():
     print(f"aperture D = {F_MM/N:.2f} mm,  area = {A*1e6:.1f} mm^2")
     print(f"plate scale = {ifov_as:.2f} arcsec/px")
     print(f"R0 (mag-0)  = {R0:.3e} e-/s")
-    print(f"S_lim (SNR{SNRDET:g}, {NPIX}px, RN{RN}) = {slim:.1f} e-")
+    print(f"S_lim (SNR{SNRDET:g}, best window {wbest}x{wbest}, sigma_PSF {SIGMA_PSF:g} px, "
+          f"RN{RN}) = {slim:.1f} e- total")
     print(f"V_lim(t) = {-2.5*math.log10(slim/R0):.2f} + 2.5*log10(t[s])")
     print()
     print(f"on-orbit smear exposure (1px @ {OMEGA_ORBIT} deg/s) = "

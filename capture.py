@@ -197,12 +197,26 @@ def main():
     print(f"Mode: {mode_name}; settings (exp_us, gain): {settings}")
 
     # ----- output folders -------------------------------------------------- #
+    # Wall clock is untrusted in the field (no RTC/network): a repeated boot
+    # time can reproduce an old stamp, so claim the dir exclusively and add a
+    # suffix on collision instead of silently reusing it (exist_ok would let
+    # frame 000000 overwrite a previous session).
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    session_dir = os.path.join(args.out, f"session_{stamp}")
+    os.makedirs(args.out, exist_ok=True)
+    for attempt in range(100):
+        suffix = "" if attempt == 0 else f"_{attempt:02d}"
+        session_dir = os.path.join(args.out, f"session_{stamp}{suffix}")
+        try:
+            os.mkdir(session_dir)
+            break
+        except FileExistsError:
+            continue
+    else:
+        raise RuntimeError(f"could not create a unique session dir under {args.out}")
     raw_dir = os.path.join(session_dir, "raw")
     prev_dir = os.path.join(session_dir, "preview")
-    os.makedirs(raw_dir, exist_ok=True)
-    os.makedirs(prev_dir, exist_ok=True)
+    os.makedirs(raw_dir)
+    os.makedirs(prev_dir)
     print(f"\nWriting to: {session_dir}")
     print(f"Free disk: {free_gb(session_dir):.1f} GB\n")
 

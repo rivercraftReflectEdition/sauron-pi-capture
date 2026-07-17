@@ -1,14 +1,26 @@
 # Joshua Tree field notes — Sauron-1 night-sky capture
 
-Observing checklist + the engineering reasoning behind the settings. Numbers use
-the locked baseline: IMX296 mono, `p = 3.45 µm`, `f = 25 mm`, `f/1.4`
-(`D = f/N = 17.86 mm`), consistent with `../STAR_TRACKER_SOURCE_OF_TRUTH.md`.
+Observing checklist + the engineering reasoning behind the settings. The field rig
+runs BOTH cameras on the Raspberry Pi 5: **IMX900 primary** (FSM:GO module, FRAMOS
+Pi driver — the flight sensor; proven in-house 2026-07) and IMX296 as companion.
+Consistent with `../STAR_TRACKER_SOURCE_OF_TRUTH.md`.
 
-Plate scale (sanity, matches the optical notebook):
+Plate scales (sanity, match the optical notebook):
 ```
-IFOV = p / f = 3.45e-3 / 25 = 1.380e-4 rad = 28.46 arcsec/px
-FOV  = 1456 px × 28.46" = 11.5°   ×   1088 px × 28.46" = 8.6°   ✓
+IMX900 + 16 mm f/1.4 (flight lens):
+IFOV = p / f = 2.25e-3 / 16 = 1.406e-4 rad = 29.01 arcsec/px
+FOV  = 2064 px -> 16.5°  ×  1552 px -> 12.5°   ✓
+solver camera spec: f_px = 7111, cx,cy = 1032,776  (catalog imx900_16mm.scat)
+
+IMX296 + 25 mm f/1.4 (companion, as originally planned here):
+IFOV = 3.45e-3 / 25 = 1.380e-4 rad = 28.46 arcsec/px
+FOV  = 1456 px × 28.46" = 11.5°  ×  1088 px × 28.46" = 8.6°   ✓
+(a 25 mm catalog profile must be built before ID/attitude on this pairing;
+ imx296_16mm.scat only covers the 16 mm lens)
 ```
+
+The section math below was written against the IMX296/25 mm numbers; the reasoning
+(defocus, exposure, SNR) carries to the IMX900 with the constants above.
 
 ---
 
